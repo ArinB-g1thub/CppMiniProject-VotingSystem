@@ -218,7 +218,8 @@ bool registerVoter(string voterId) {
     return true;
 }
 
-// ==================== DISPLAY FUNCTIONS ====================
+
+// Display Functions
 
 // Display welcome screen
 void displayWelcome() {
@@ -268,7 +269,8 @@ void displayCandidates(int areaIndex) {
     printLine('-', 60);
 }
 
-// ==================== VOTING FUNCTIONS ====================
+
+// Voting Functions
 
 // Cast vote - main voting function
 void castVote() {

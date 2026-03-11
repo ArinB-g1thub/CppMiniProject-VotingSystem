@@ -1,67 +1,65 @@
-// VOTING SYSTEM v1.0//
+// VOTING SYSTEM v1.0 //
 
 #include <iostream>
 #include <string>
 using namespace std;
 
-// arrays for candidates and votes
+// array for candidates and votes
 string candidates[4] = {"KP Sharma Oli", "Balen Shah", "Ranjit Tamang", "Mandira Chimaria"};
 int votes[4] = {0, 0, 0, 0};
 
-// display candidates
-void displayCandidates() 
-{
-    cout << "\n===== JHAPA-5 CONSTITUENCY =====\n";
-    cout << "Candidates:\n";
-    for (int i = 0; i < 4; i++) 
-	{
+// Function to display candidates
+void displayCandidates() {
+    cout << "\n==============================" << endl;
+    cout << "     JHAPA-5 CONSTITUENCY     " << endl;
+    cout << "==============================" << endl;
+    cout << "Candidates:" << endl;
+    for (int i = 0; i < 4; i++) {
         cout << i + 1 << ". " << candidates[i] << endl;
     }
-    cout << "================================\n";
+    cout << "==============================" << endl;
 }
 
-// Cast Vote
-void castVote() 
-{
+// Function to cast vote
+void castVote() {
     int choice;
     cout << "\nEnter candidate number (1-4): ";
     cin >> choice;
     
-    if (choice >= 1 && choice <= 4) 
-	{
+    if (choice >= 1 && choice <= 4) {
         votes[choice - 1]++;
-        cout << "Vote cast successfully!\n";
-    } 
-	else {
-        cout << "Invalid choice!\n";
+        cout << "Vote cast successfully!" << endl;
+    } else {
+        cout << "Invalid choice!" << endl;
     }
 }
 
-// display results
-void displayResults() 
-{
-    cout << "\n======= VOTING RESULTS =======\n";
-    cout << "JHAPA-5 CONSTITUENCY\n";
-    cout << "------------------------------\n";
+// Function to display result
+void displayResults() {
+    cout << "\n==============================" << endl;
+    cout << "       VOTING RESULTS         " << endl;
+    cout << "     JHAPA-5 CONSTITUENCY     " << endl;
+    cout << "------------------------------" << endl;
     for (int i = 0; i < 4; i++) {
-        cout << candidates[i] << ": " << votes[i] << " votes\n";
+        cout << candidates[i] << ": " << votes[i] << " votes" << endl;
     }
-    cout << "==============================\n";
+    cout << "==============================" << endl;
 }
 
 int main() {
     int option;
     bool running = true;
     
-    cout << "\n";
-    cout << "SIMPLE VOTING SYSTEM v1.0 \n";
+    cout << "****************************************" << endl;
+    cout << "*     SIMPLE VOTING SYSTEM v1.0        *" << endl;
+    cout << "****************************************" << endl;
     
     while (running) {
-        cout << "\n--- MAIN MENU ---\n";
-        cout << "1. View Candidates\n";
-        cout << "2. Cast Vote\n";
-        cout << "3. View Results\n";
-        cout << "4. Exit\n";
+        cout << "\n--- MAIN MENU ---" << endl;
+        cout << "1. View Candidates" << endl;
+        cout << "2. Cast Vote" << endl;
+        cout << "3. View Results" << endl;
+        cout << "4. Exit" << endl;
         cout << "Enter choice: ";
         cin >> option;
         
@@ -78,10 +76,10 @@ int main() {
                 break;
             case 4:
                 running = false;
-                cout << "Thank you for using the Voting System!\n";
+                cout << "Thank you for using the Voting System!" << endl;
                 break;
             default:
-                cout << "Invalid option!\n";
+                cout << "Invalid option!" << endl;
         }
     }
     

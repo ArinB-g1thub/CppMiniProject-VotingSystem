@@ -16,7 +16,7 @@ string candidates[NUM_CANDIDATES] = {
 int votes[NUM_CANDIDATES] = {0, 0, 0, 0};
 int totalVotes = 0;
 
-// Function to clear input buffer (bug fix for invalid input)
+// Function to clear input buffer
 void clearInputBuffer() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');

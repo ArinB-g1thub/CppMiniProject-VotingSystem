@@ -5,46 +5,67 @@
 #include <string>
 #include <iomanip>
 #include <limits>
+#include <cstdlib>
 using namespace std;
 
 // Constants
 const int NUM_AREAS = 4;
 const int MAX_CANDIDATES = 4;
+const string ADMIN_PASSWORD = "admin123";
+const string DATA_FILE = "votes_v4.txt";
 
-// Area names
-string areas[NUM_AREAS] = {"Jhapa-5", "Kathmandu-1", "Chitwan-2", "Pokhara-3"};
+// Structs
 
-// 2D array for candidates
-string candidates[NUM_AREAS][MAX_CANDIDATES] = {
-    {"KP Sharma Oli", "Balen Shah",  "Mandhara Chimariya", "Samir Tamang"},    
-    {"Ranju Neupane", "Prakash Man Shrestha", "Rabindra Mishra", "Kiran Pokharel"},
-    {"Rabi Lamichhane", "Mina Kumari Kharel", "Krishna Bhakta Pokharel", "Reena Gurud"},
-    {"Arjun Khanal", "Yogesh Bhattarai", "Ramji Prasad Baral}
+// Struct for Candidate
+struct Candidate {
+    string name;
+    int votes;
 };
 
-// 2D array for votes
-int votes[NUM_AREAS][MAX_CANDIDATES] = {{0}};
-int totalVotesPerArea[NUM_AREAS] = {0};
+// Struct for Constituency/Area
+struct Constituency {
+    string name;
+    Candidate candidates[MAX_CANDIDATES];
+    int totalVotes;
+};
 
-// Function to print a line
-void printLine(char ch, int len) 
-{
+// Struct for Election Data
+struct ElectionData {
+    Constituency areas[NUM_AREAS];
+    int totalConstituencies;
+};
+
+// Global data
+ElectionData election;
+
+// Utility Function
+
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void pauseScreen() {
+    cout << "\nPress Enter to continue...";
+    cin.get();
+}
+
+void printLine(char ch, int len) {
     for (int i = 0; i < len; i++) {
         cout << ch;
     }
     cout << endl;
 }
 
-// Clear input buffer
-void clearInputBuffer() 
-{
+void clearInputBuffer() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-// Get valid integer input
-int getValidInput(int min, int max) 
-{
+int getValidInput(int min, int max) {
     int input;
     while (true) {
         cin >> input;
@@ -60,9 +81,45 @@ int getValidInput(int min, int max)
     }
 }
 
-// Save votes to file
-void saveVotesToFile() 
-{
+// Initialization
+
+void initializeElection() {
+    election.totalConstituencies = NUM_AREAS;
+    
+    // Area names
+    string areaNames[NUM_AREAS] = {
+        "Jhapa-5", 
+        "Kathmandu-1", 
+        "Chitwan-2", 
+        "Pokhara-3"
+    };
+    
+    // Candidate names for each area
+    string candidateNames[NUM_AREAS][MAX_CANDIDATES] = {
+    {"KP Sharma Oli", "Balen Shah",  "Mandhara Chimariya", "Samir Tamang"},    
+    {"Ranju Neupane", "Prakash Man Shrestha", "Rabindra Mishra", "Kiran Pokharel"},
+    {"Rabi Lamichhane", "Mina Kumari Kharel", "Krishna Bhakta Pokharel", "Reena Gurud"},
+    {"Arjun Khanal", "Yogesh Bhattarai", "Ramji Prasad Baral"}
+    
+};
+        
+    
+    // Initialize each constituency
+    for (int i = 0; i < NUM_AREAS; i++) {
+        election.areas[i].name = areaNames[i];
+        election.areas[i].totalVotes = 0;
+        
+        // Initialize each candidate in this constituency
+        for (int j = 0; j < MAX_CANDIDATES; j++) {
+            election.areas[i].candidates[j].name = candidateNames[i][j];
+            election.areas[i].candidates[j].votes = 0;
+        }
+    }
+}
+
+// File Handling
+
+void saveVotesToFile() {
     ofstream outFile(DATA_FILE);
     
     if (!outFile) {
@@ -70,9 +127,10 @@ void saveVotesToFile()
         return;
     }
     
+    // Save votes for each constituency and candidate
     for (int i = 0; i < NUM_AREAS; i++) {
         for (int j = 0; j < MAX_CANDIDATES; j++) {
-            outFile << votes[i][j] << " ";
+            outFile << election.areas[i].candidates[j].votes << " ";
         }
         outFile << endl;
     }
@@ -81,9 +139,7 @@ void saveVotesToFile()
     cout << "[OK] Data saved successfully!" << endl;
 }
 
-// Load votes from file
-void loadVotesFromFile() 
-{
+void loadVotesFromFile() {
     ifstream inFile(DATA_FILE);
     
     if (!inFile) {
@@ -91,11 +147,13 @@ void loadVotesFromFile()
         return;
     }
     
+    // Load votes for each constituency and candidate
     for (int i = 0; i < NUM_AREAS; i++) {
-        totalVotesPerArea[i] = 0;
+        election.areas[i].totalVotes = 0;
+        
         for (int j = 0; j < MAX_CANDIDATES; j++) {
-            inFile >> votes[i][j];
-            totalVotesPerArea[i] += votes[i][j];
+            inFile >> election.areas[i].candidates[j].votes;
+            election.areas[i].totalVotes += election.areas[i].candidates[j].votes;
         }
     }
     
@@ -103,102 +161,111 @@ void loadVotesFromFile()
     cout << "[OK] Previous data loaded successfully!" << endl;
 }
 
-// Display all areas
-void displayAreas() 
-{
+// Display Function
+
+void displayAreas() {
     cout << endl;
-    printLine('-', 45);
+    printLine('-', 50);
     cout << "        AVAILABLE CONSTITUENCIES" << endl;
-    printLine('-', 45);
+    printLine('-', 50);
+    cout << " " << left << setw(5) << "No.";
+    cout << setw(20) << "Constituency";
+    cout << "Votes Cast" << endl;
+    printLine('-', 50);
     
     for (int i = 0; i < NUM_AREAS; i++) {
-        cout << " " << i + 1 << ". " << left << setw(15) << areas[i];
-        cout << " (" << totalVotesPerArea[i] << " votes cast)" << endl;
+        cout << " " << left << setw(5) << i + 1;
+        cout << setw(20) << election.areas[i].name;
+        cout << election.areas[i].totalVotes << endl;
+    }
+    printLine('-', 50);
+}
+
+void displayCandidates(int areaIndex) {
+    cout << endl;
+    printLine('-', 45);
+    cout << " " << election.areas[areaIndex].name << " - CANDIDATES" << endl;
+    printLine('-', 45);
+    cout << " " << left << setw(5) << "No.";
+    cout << "Candidate Name" << endl;
+    printLine('-', 45);
+    
+    for (int i = 0; i < MAX_CANDIDATES; i++) {
+        cout << " " << left << setw(5) << i + 1;
+        cout << election.areas[areaIndex].candidates[i].name << endl;
     }
     printLine('-', 45);
 }
 
-// Display candidates for specific area
-void displayCandidates(int areaIndex) 
-{
-    cout << endl;
-    printLine('-', 40);
-    cout << " " << areas[areaIndex] << " - CANDIDATES" << endl;
-    printLine('-', 40);
+// Function to find winner using struct
+Candidate findWinner(int areaIndex) {
+    Candidate winner;
+    winner.name = "No votes yet";
+    winner.votes = 0;
     
-    for (int i = 0; i < MAX_CANDIDATES; i++) {
-        cout << " " << i + 1 << ". " << candidates[areaIndex][i] << endl;
-    }
-    printLine('-', 40);
-}
-
-// Find winner of an area
-void findWinner(int areaIndex) 
-{
-    if (totalVotesPerArea[areaIndex] == 0) {
-        cout << " No votes cast yet." << endl;
-        return;
+    if (election.areas[areaIndex].totalVotes == 0) {
+        return winner;
     }
     
-    int maxVotes = 0;
-    int winnerIndex = 0;
-    
     for (int i = 0; i < MAX_CANDIDATES; i++) {
-        if (votes[areaIndex][i] > maxVotes) {
-            maxVotes = votes[areaIndex][i];
-            winnerIndex = i;
+        if (election.areas[areaIndex].candidates[i].votes > winner.votes) {
+            winner = election.areas[areaIndex].candidates[i];
         }
     }
     
-    cout << " ** LEADING: " << candidates[areaIndex][winnerIndex];
-    cout << " (" << maxVotes << " votes) **" << endl;
+    return winner;
 }
 
-// Display results for specific area
-void displayAreaResults(int areaIndex) 
-{
+void displayAreaResults(int areaIndex) {
+    Constituency area = election.areas[areaIndex];
+    
     cout << endl;
-    printLine('=', 50);
-    cout << " RESULTS: " << areas[areaIndex] << endl;
-    printLine('=', 50);
+    printLine('=', 55);
+    cout << " RESULTS: " << area.name << endl;
+    printLine('=', 55);
     
     for (int i = 0; i < MAX_CANDIDATES; i++) {
         float percentage = 0;
-        if (totalVotesPerArea[areaIndex] > 0) {
-            percentage = (float)votes[areaIndex][i] / totalVotesPerArea[areaIndex] * 100;
+        if (area.totalVotes > 0) {
+            percentage = (float)area.candidates[i].votes / area.totalVotes * 100;
         }
         
-        cout << " " << left << setw(24) << candidates[areaIndex][i];
-        cout << ": " << right << setw(4) << votes[areaIndex][i];
+        cout << " " << left << setw(26) << area.candidates[i].name;
+        cout << ": " << right << setw(4) << area.candidates[i].votes;
         cout << " (" << fixed << setprecision(1) << setw(5) << percentage << "%)" << endl;
     }
     
-    printLine('-', 50);
-    cout << " Total Votes: " << totalVotesPerArea[areaIndex] << endl;
-    findWinner(areaIndex);
-    printLine('=', 50);
+    printLine('-', 55);
+    cout << " Total Votes: " << area.totalVotes << endl;
+    
+    Candidate winner = findWinner(areaIndex);
+    cout << " ** LEADING: " << winner.name << " (" << winner.votes << " votes) **" << endl;
+    printLine('=', 55);
 }
 
-// Display all results
-void displayAllResults() 
-{
+void displayAllResults() {
     for (int i = 0; i < NUM_AREAS; i++) {
         displayAreaResults(i);
     }
 }
 
-// Cast vote
-void castVote() 
-{
+// Voting Function
+
+void castVote() {
+    clearScreen();
+    
     displayAreas();
     cout << "Select constituency (1-" << NUM_AREAS << ") or 0 to cancel: ";
     int areaChoice = getValidInput(0, NUM_AREAS);
     
     if (areaChoice == 0) {
         cout << "[X] Vote cancelled." << endl;
+        pauseScreen();
         return;
     }
     areaChoice--;
+    
+    clearScreen();
     
     displayCandidates(areaChoice);
     cout << "Select candidate (1-" << MAX_CANDIDATES << ") or 0 to cancel: ";
@@ -206,18 +273,21 @@ void castVote()
     
     if (candChoice == 0) {
         cout << "[X] Vote cancelled." << endl;
+        pauseScreen();
         return;
     }
     candChoice--;
     
-    // Confirmation
+    clearScreen();
+    
+    // Show confirmation using struct data
     cout << endl;
-    printLine('-', 45);
+    printLine('-', 50);
     cout << "         VOTE CONFIRMATION" << endl;
-    printLine('-', 45);
-    cout << " Constituency: " << areas[areaChoice] << endl;
-    cout << " Candidate   : " << candidates[areaChoice][candChoice] << endl;
-    printLine('-', 45);
+    printLine('-', 50);
+    cout << " Constituency: " << election.areas[areaChoice].name << endl;
+    cout << " Candidate   : " << election.areas[areaChoice].candidates[candChoice].name << endl;
+    printLine('-', 50);
     
     char confirm;
     cout << "Confirm your vote? (Y/N): ";
@@ -225,18 +295,24 @@ void castVote()
     clearInputBuffer();
     
     if (confirm == 'Y' || confirm == 'y') {
-        votes[areaChoice][candChoice]++;
-        totalVotesPerArea[areaChoice]++;
+        // Update votes using struct
+        election.areas[areaChoice].candidates[candChoice].votes++;
+        election.areas[areaChoice].totalVotes++;
+        
         saveVotesToFile();
         cout << "\n[OK] Vote recorded and saved successfully!" << endl;
     } else {
         cout << "[X] Vote cancelled." << endl;
     }
+    
+    pauseScreen();
 }
 
-// View results menu
-void viewResults() 
-{
+// ==================== VIEW RESULTS ====================
+
+void viewResults() {
+    clearScreen();
+    
     cout << endl;
     printLine('-', 30);
     cout << "      VIEW RESULTS" << endl;
@@ -250,18 +326,23 @@ void viewResults()
     int choice = getValidInput(1, 3);
     
     if (choice == 1) {
+        clearScreen();
         displayAreas();
         cout << "Select area: ";
         int area = getValidInput(1, NUM_AREAS) - 1;
+        clearScreen();
         displayAreaResults(area);
+        pauseScreen();
     } else if (choice == 2) {
+        clearScreen();
         displayAllResults();
+        pauseScreen();
     }
 }
 
-// Admin login
-bool adminLogin() 
-{
+// ==================== ADMIN FUNCTIONS ====================
+
+bool adminLogin() {
     string password;
     int attempts = 3;
     
@@ -277,6 +358,7 @@ bool adminLogin()
         
         if (password == ADMIN_PASSWORD) {
             cout << "[OK] Login successful!" << endl;
+            pauseScreen();
             return true;
         } else {
             attempts--;
@@ -285,12 +367,11 @@ bool adminLogin()
     }
     
     cout << "[!] Access denied. Too many failed attempts." << endl;
+    pauseScreen();
     return false;
 }
 
-// Reset all votes
-void resetVotes() 
-{
+void resetVotes() {
     char confirm;
     cout << "\n[WARNING] This will delete ALL votes!" << endl;
     cout << "Are you sure? (Y/N): ";
@@ -298,10 +379,11 @@ void resetVotes()
     clearInputBuffer();
     
     if (confirm == 'Y' || confirm == 'y') {
+        // Reset using struct
         for (int i = 0; i < NUM_AREAS; i++) {
-            totalVotesPerArea[i] = 0;
+            election.areas[i].totalVotes = 0;
             for (int j = 0; j < MAX_CANDIDATES; j++) {
-                votes[i][j] = 0;
+                election.areas[i].candidates[j].votes = 0;
             }
         }
         saveVotesToFile();
@@ -309,41 +391,45 @@ void resetVotes()
     } else {
         cout << "[X] Reset cancelled." << endl;
     }
+    pauseScreen();
 }
 
-// Display statistics
-void displayStatistics() 
-{
+void displayStatistics() {
     int totalVotes = 0;
     int highestAreaVotes = 0;
     int highestAreaIndex = 0;
     
+    // Calculate statistics using struct
     for (int i = 0; i < NUM_AREAS; i++) {
-        totalVotes += totalVotesPerArea[i];
-        if (totalVotesPerArea[i] > highestAreaVotes) {
-            highestAreaVotes = totalVotesPerArea[i];
+        totalVotes += election.areas[i].totalVotes;
+        if (election.areas[i].totalVotes > highestAreaVotes) {
+            highestAreaVotes = election.areas[i].totalVotes;
             highestAreaIndex = i;
         }
     }
     
     cout << endl;
-    printLine('=', 45);
+    printLine('=', 50);
     cout << "         VOTING STATISTICS" << endl;
-    printLine('=', 45);
+    printLine('=', 50);
     cout << " Total Votes (All Areas): " << totalVotes << endl;
-    cout << " Total Constituencies   : " << NUM_AREAS << endl;
-    cout << " Most Active Area       : " << areas[highestAreaIndex] << endl;
-    printLine('=', 45);
+    cout << " Total Constituencies   : " << election.totalConstituencies << endl;
+    cout << " Most Active Area       : " << election.areas[highestAreaIndex].name << endl;
+    printLine('=', 50);
+    
+    pauseScreen();
 }
 
-// Admin panel
-void adminPanel() 
-{
+void adminPanel() {
+    clearScreen();
+    
     if (!adminLogin()) return;
     
     bool inAdmin = true;
     
     while (inAdmin) {
+        clearScreen();
+        
         cout << endl;
         printLine('-', 35);
         cout << "         ADMIN PANEL" << endl;
@@ -361,19 +447,25 @@ void adminPanel()
         
         switch (choice) {
             case 1:
+                clearScreen();
                 displayAllResults();
+                pauseScreen();
                 break;
             case 2:
+                clearScreen();
                 displayStatistics();
                 break;
             case 3:
+                clearScreen();
                 resetVotes();
                 break;
             case 4:
                 saveVotesToFile();
+                pauseScreen();
                 break;
             case 5:
                 loadVotesFromFile();
+                pauseScreen();
                 break;
             case 6:
                 inAdmin = false;
@@ -383,20 +475,29 @@ void adminPanel()
     }
 }
 
-int main() 
-{
+// Main Function
+
+int main() {
+    // Initialize election data using struct
+    initializeElection();
+    
+    clearScreen();
+    
     cout << endl;
-    printLine('=', 50);
-    cout << "         VOTING SYSTEM v4.0" << endl;
-    cout << "    With File Handling & Admin Panel" << endl;
-    printLine('=', 50);
+    printLine('=', 55);
+    cout << "           VOTING SYSTEM v4.0" << endl;
+    cout << "    With Structs, File Handling & Admin Panel" << endl;
+    printLine('=', 55);
     
     // Load previous data
     loadVotesFromFile();
+    pauseScreen();
     
     bool running = true;
     
     while (running) {
+        clearScreen();
+        
         cout << endl;
         printLine('-', 40);
         cout << "            MAIN MENU" << endl;
@@ -414,12 +515,20 @@ int main()
         
         switch (option) {
             case 1:
+                clearScreen();
                 displayAreas();
+                pauseScreen();
                 break;
             case 2:
+                clearScreen();
                 displayAreas();
                 cout << "Select area: ";
-                displayCandidates(getValidInput(1, NUM_AREAS) - 1);
+                {
+                    int area = getValidInput(1, NUM_AREAS) - 1;
+                    clearScreen();
+                    displayCandidates(area);
+                }
+                pauseScreen();
                 break;
             case 3:
                 castVote();
@@ -431,6 +540,7 @@ int main()
                 adminPanel();
                 break;
             case 6:
+                clearScreen();
                 saveVotesToFile();
                 running = false;
                 cout << "\nThank you for using the Voting System!" << endl;

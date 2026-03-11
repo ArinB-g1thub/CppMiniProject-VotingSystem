@@ -308,7 +308,7 @@ void castVote() {
     pauseScreen();
 }
 
-// ==================== VIEW RESULTS ====================
+// View Results
 
 void viewResults() {
     clearScreen();
@@ -340,7 +340,7 @@ void viewResults() {
     }
 }
 
-// ==================== ADMIN FUNCTIONS ====================
+// Admin Functions
 
 bool adminLogin() {
     string password;

@@ -5,7 +5,7 @@ const electionData = {
             name: "Jhapa-5",
             candidates: [
                 { name: "KP Sharma Oli", party: "UML" },
-                { name: "Balen Shah", party: "Independent" },
+                { name: "Balen Shah", party: "RSP" },
                 { name: "Keshav Prasad Budhathoki", party: "Congress" },
                 { name: "Rajendra Lingden", party: "RPP" }
             ]

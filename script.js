@@ -7,6 +7,18 @@ let currentVoter = {
     candidate: ''
 };
 
+// Party icons mapping
+const partyIcons = {
+    'UML': '☀',
+    'RSP': '🔔',
+    'Congress': '🌳',
+    'RPP': '⛏',
+    'Bibeksheel': '⚖',
+    'Independent': '👤',
+    'Janamat': '📢',
+    'Loktantrik': '👁'
+};
+
 // Initialize votes structure
 function initializeVotes() {
     electionData.constituencies.forEach(constituency => {
@@ -24,6 +36,11 @@ function goToPage(pageId) {
         page.classList.remove('active');
     });
     document.getElementById(pageId).classList.add('active');
+    
+    // If going to results page, load fresh results
+    if (pageId === 'resultsPage') {
+        displayResults();
+    }
 }
 
 // Start voting process
@@ -100,9 +117,10 @@ function verifyVoter() {
     constituency.candidates.forEach(candidate => {
         const card = document.createElement('div');
         card.className = 'candidate-card';
+        const partyIcon = partyIcons[candidate.party] || '🏛️';
         card.innerHTML = `
             <div class="candidate-name">${candidate.name}</div>
-            <div class="candidate-party">🏛️ ${candidate.party}</div>
+            <div class="candidate-party">${partyIcon} ${candidate.party}</div>
         `;
         card.onclick = () => selectCandidate(candidate.name, candidate.party, card);
         container.appendChild(card);
@@ -132,11 +150,12 @@ function selectCandidate(candidateName, party, cardElement) {
 // Show confirmation
 function showConfirmation() {
     const constituency = electionData.constituencies.find(c => c.id == currentVoter.constituency);
+    const partyIcon = partyIcons[currentVoter.party] || '🏛️';
     
     document.getElementById('confirmVoterId').textContent = currentVoter.voterId;
     document.getElementById('confirmConstituency').textContent = constituency.name;
     document.getElementById('confirmCandidate').textContent = currentVoter.candidate;
-    document.getElementById('confirmParty').textContent = currentVoter.party;
+    document.getElementById('confirmParty').textContent = `${partyIcon} ${currentVoter.party}`;
     
     goToPage('confirmPage');
 }
@@ -157,8 +176,8 @@ function submitVote() {
     goToPage('successPage');
 }
 
-// View results
-function viewResults() {
+// Display results - FIXED: Now properly loads and displays votes
+function displayResults() {
     const resultsContainer = document.getElementById('resultsContainer');
     resultsContainer.innerHTML = '';
     
@@ -166,7 +185,7 @@ function viewResults() {
     
     electionData.constituencies.forEach(constituency => {
         const constituencyVotes = votes[constituency.id];
-        let maxVotes = Math.max(...Object.values(constituencyVotes));
+        let maxVotes = Math.max(...Object.values(constituencyVotes), 1);
         
         const resultDiv = document.createElement('div');
         resultDiv.className = 'constituency-result';
@@ -177,11 +196,12 @@ function viewResults() {
             const voteCount = constituencyVotes[candidate.name] || 0;
             totalVotes += voteCount;
             const percentage = maxVotes > 0 ? ((voteCount / maxVotes) * 100) : 0;
+            const partyIcon = partyIcons[candidate.party] || '🏛️';
             
             html += `
                 <div class="vote-bar">
                     <div class="vote-label">
-                        <span>${candidate.name} (${candidate.party})</span>
+                        <span>${partyIcon} ${candidate.name} (${candidate.party})</span>
                         <span>${voteCount} votes</span>
                     </div>
                     <div class="bar">
@@ -197,8 +217,6 @@ function viewResults() {
     
     document.getElementById('totalVotes').textContent = totalVotes;
     document.getElementById('totalVoters').textContent = voters.length;
-    
-    goToPage('resultsPage');
 }
 
 // Admin login

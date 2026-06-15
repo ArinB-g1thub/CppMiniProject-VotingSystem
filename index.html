@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electronic Voting System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Page -->
+        <div id="welcomePage" class="page active">
+            <div class="welcome-box">
+                <h1>🗳️ Electronic Voting System</h1>
+                <p>Secure. Fair. Transparent.</p>
+                <div class="button-group">
+                    <button onclick="startVoting()" class="btn btn-primary">Cast Your Vote</button>
+                    <button onclick="goToPage('resultsPage')" class="btn btn-secondary">View Results</button>
+                    <button onclick="goToPage('adminPage')" class="btn btn-secondary">Admin Panel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voter Registration Page -->
+        <div id="voterRegPage" class="page">
+            <div class="form-box">
+                <h2>Voter Verification</h2>
+                <p class="subtitle">Enter your details to proceed</p>
+                
+                <label>Voter ID (Citizenship Number)</label>
+                <input type="text" id="voterId" placeholder="Enter your citizen number" maxlength="20">
+                <small id="voterError" class="error"></small>
+
+                <label>Select Your Constituency</label>
+                <select id="constituencySelect">
+                    <option value="">-- Choose --</option>
+                </select>
+                <small id="constituencyError" class="error"></small>
+
+                <div class="button-group">
+                    <button onclick="verifyVoter()" class="btn btn-primary">Next</button>
+                    <button onclick="goToPage('welcomePage')" class="btn btn-secondary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidate Selection Page -->
+        <div id="candidatePage" class="page">
+            <div class="form-box">
+                <h2 id="candidateTitle">Select Your Candidate</h2>
+                <p id="candidateSubtitle" class="subtitle"></p>
+                
+                <div id="candidatesContainer" class="candidates-grid"></div>
+
+                <div class="button-group">
+                    <button onclick="goToPage('voterRegPage')" class="btn btn-secondary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Page -->
+        <div id="confirmPage" class="page">
+            <div class="form-box">
+                <h2>Confirm Your Vote</h2>
+                <p class="subtitle">Please review before confirming</p>
+                
+                <div class="confirmation-details">
+                    <p><strong>Voter ID:</strong> <span id="confirmVoterId"></span></p>
+                    <p><strong>Constituency:</strong> <span id="confirmConstituency"></span></p>
+                    <p><strong>Candidate:</strong> <span id="confirmCandidate"></span></p>
+                    <p><strong>Party:</strong> <span id="confirmParty"></span></p>
+                </div>
+
+                <div class="warning">
+                    ⚠️ Once confirmed, your vote cannot be changed!
+                </div>
+
+                <div class="button-group">
+                    <button onclick="submitVote()" class="btn btn-success">Confirm Vote</button>
+                    <button onclick="goToPage('candidatePage')" class="btn btn-secondary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Page -->
+        <div id="successPage" class="page">
+            <div class="success-box">
+                <h2>✓ Vote Recorded Successfully</h2>
+                <p>Thank you for voting!</p>
+                <div class="button-group">
+                    <button onclick="goToPage('welcomePage')" class="btn btn-primary">Return Home</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="resultsPage" class="page">
+            <div class="form-box">
+                <h2>Election Results</h2>
+                <p class="subtitle">Live vote counts</p>
+                
+                <div id="resultsContainer" class="results-container"></div>
+
+                <div class="stats-box">
+                    <p><strong>Total Votes Cast:</strong> <span id="totalVotes">0</span></p>
+                    <p><strong>Total Registered Voters:</strong> <span id="totalVoters">0</span></p>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="goToPage('welcomePage')" class="btn btn-primary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPage" class="page">
+            <div class="form-box">
+                <h2>Admin Panel</h2>
+                <p class="subtitle">Enter admin password</p>
+                
+                <label>Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter password">
+                <small id="adminError" class="error"></small>
+
+                <div class="button-group">
+                    <button onclick="adminLogin()" class="btn btn-primary">Login</button>
+                    <button onclick="goToPage('welcomePage')" class="btn btn-secondary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="page">
+            <div class="form-box">
+                <h2>Admin Dashboard</h2>
+                
+                <div id="adminStatsContainer" class="admin-stats"></div>
+
+                <div class="admin-actions">
+                    <button onclick="resetAllData()" class="btn btn-danger">Reset All Data</button>
+                    <button onclick="exportData()" class="btn btn-info">Export Data</button>
+                    <button onclick="goToPage('welcomePage')" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

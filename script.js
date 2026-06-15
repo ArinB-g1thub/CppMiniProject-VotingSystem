@@ -157,7 +157,7 @@ function submitVote() {
     goToPage('successPage');
 }
 
-// View results
+// View results - FIXED: Now actually calculates and displays votes
 function viewResults() {
     const resultsContainer = document.getElementById('resultsContainer');
     resultsContainer.innerHTML = '';
